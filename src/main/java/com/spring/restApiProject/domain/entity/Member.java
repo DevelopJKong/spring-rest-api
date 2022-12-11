@@ -1,7 +1,6 @@
 package com.spring.restApiProject.domain.entity;
 
 import org.hibernate.annotations.Comment;
-import org.springframework.lang.NonNull;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;

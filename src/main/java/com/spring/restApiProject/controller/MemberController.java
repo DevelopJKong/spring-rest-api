@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.spring.restApiProject.domain.dto.request.LoginDto;
 // import com.spring.restApiProject.domain.dto.request.AddMemberDto;
 import com.spring.restApiProject.domain.dto.response.ResponseHandler;
 import com.spring.restApiProject.domain.entity.Member;
@@ -34,4 +35,13 @@ public class MemberController {
         }
     }
 
+    @PostMapping(value = "/login")
+    public ResponseEntity<?> login(@RequestBody LoginDto loginRequest) {
+        try {
+            return ResponseHandler.generateResponse("로그인", HttpStatus.OK,
+                    memberService.login(loginRequest.getEmail(), loginRequest.getPassword()));
+        } catch (Exception e) {
+            return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, null);
+        }
+    }
 }

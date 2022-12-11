@@ -58,4 +58,17 @@ public class MemberRepository {
         return results;
     }
 
+    /**
+     * - 회원 이메일으로 회원을 검색하는 api
+     * 
+     * @param email
+     * @return result
+     */
+    public Member findByEmail(String email) {
+        Member result = em.createQuery("SELECT m FROM Member m WHERE m.email = :email", Member.class)
+                .setParameter("email", email)
+                .getSingleResult();
+        return result;
+    }
+
 }
