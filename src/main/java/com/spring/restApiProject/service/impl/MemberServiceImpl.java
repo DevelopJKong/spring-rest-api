@@ -1,25 +1,16 @@
 package com.spring.restApiProject.service.impl;
 
-import java.security.Key;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.stereotype.Service;
 
+import com.spring.restApiProject.authorization.JwtTokenConfig;
 import com.spring.restApiProject.domain.entity.Member;
 import com.spring.restApiProject.repository.MemberRepository;
 import com.spring.restApiProject.service.MemberService;
-
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import jakarta.xml.bind.DatatypeConverter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,14 +25,12 @@ public class MemberServiceImpl implements MemberService {
 
     private final MemberRepository memberRepository;
 
-    private static final int JWT_EXPIRATION_MS = 604800000;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional
-    public Map<String, Object> addMember(Member member) {
+    public Map<String, Object> join(Member member) {
         String encodedPassword = passwordEncoder.encode(member.getPassword());
         member.setPassword(encodedPassword);
         validateDuplicateMember(member); // 중복 회원 검증
@@ -53,8 +42,6 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Map<String, Object> login(String email, String password) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + JWT_EXPIRATION_MS);
 
         Member memberData = memberRepository.findByEmail(email);
         String encodedPassword = memberData.getPassword();
@@ -63,18 +50,8 @@ public class MemberServiceImpl implements MemberService {
         if (isPasswordCheck.equals(false)) {
             throw new IllegalArgumentException("잘못 된 패스워드 입니다");
         }
-        // ! payload 생성
-        Map<String, Object> claim = new HashMap<>();
-        claim.put("email", email);
-        claim.put("iat", now);
-        claim.put("exp", expiryDate);
 
-        String token = Jwts.builder()
-                .setSubject(email)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .setClaims(claim)
-                .compact();
+        String token = JwtTokenConfig.issuedToken(email);
 
         Map<String, Object> result = new HashMap<String, Object>();
         result.put("ok", true);
